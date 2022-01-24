@@ -1,0 +1,56 @@
+version: '3.7'
+services:
+  kafka:
+    build:
+      context: docker/kafka
+    image: kafka:latest
+    hostname: kafka
+    ports:
+      - '9092:9092'
+    networks:
+      - shokuyoku-network
+
+  postgres:
+    image: postgres:10-stretch
+    restart: always
+    environment:
+       POSTGRES_USER: postgres
+       POSTGRES_PASSWORD: password
+       POSTGRES_DB: hive
+    ports:
+      - '5432:5432'
+    networks:
+      - shokuyoku-network
+
+  hive-metastore:
+    build:
+      context: docker/hive-metastore
+    image: hive-metastore
+    environment:
+      METASTORE_DB_HOSTNAME: postgres
+    ports:
+      - '9083:9083'
+    depends_on:
+      - postgres
+    networks:
+      - shokuyoku-network
+
+  minio:
+    image: minio/minio:latest
+    hostname: minio
+    container_name: minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    ulimits:
+      nofile: 4096
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: miniopwd
+    command: server --console-address ":9001" /data
+    networks:
+      - shokuyoku-network
+
+networks:
+  shokuyoku-network:
+    driver: bridge
