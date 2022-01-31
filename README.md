@@ -3,7 +3,7 @@ This application can run in either `service` or `worker` modes. The `service` co
 
 ## Usage
 
-The application produces a docker image which determines it's mode based on the first argument.
+The application produces a docker image which determines its mode based on the first argument.
 
 ### Build
 `docker build -t shokuyoku:test .`
@@ -61,4 +61,4 @@ When a class has a local variable it is directly updated by methods. For example
 
 Ideally class separation includes interfaces for future expansion. For example `BasicEventDriver` implements the `EventDriver` interface which can later be used to make a separate interchangeable class that uses a different metastore, file format or storage service.
 
-Whenever possible senseless errors/warnings are fixed. For example `main/resources/log4j2.xml` was added to the project with a copy of the default log4j configuration in order to silence log4j complaints.
+Whenever possible, senseless errors/warnings are fixed. For example `main/resources/log4j2.xml` was added to the project with a copy of the default log4j configuration in order to silence log4j complaints.

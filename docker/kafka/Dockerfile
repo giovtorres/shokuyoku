@@ -11,10 +11,13 @@ ENV KAFKA_HOME=/opt/kafka_${ZOOKEEPER_VERSION}-${KAFKA_VERSION}
 RUN set -o pipefail && \
     curl -L https://archive.apache.org/dist/kafka/${KAFKA_VERSION}/kafka_${ZOOKEEPER_VERSION}-${KAFKA_VERSION}.tgz | tar xzf -
 
+RUN apt-get update && apt-get install -y netcat && rm -rf /var/lib/apt/lists/*
+
 COPY files/entrypoint.sh /entrypoint.sh
 
 RUN chmod +x /entrypoint.sh
 
+EXPOSE 2181
 EXPOSE 9092
 
 ENTRYPOINT ["/entrypoint.sh"]

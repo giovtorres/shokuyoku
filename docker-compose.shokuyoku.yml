@@ -1,0 +1,15 @@
+version: '3.7'
+services:
+  shokuyoku-service:
+    build:
+      context: .
+    image: shokuyoku:latest
+    hostname: shokuyoku-service
+    command: service
+    environment:
+      KAFKA_SERVERS: localhost:9092
+      KAFKA_TOPIC: events
+      LISTEN_ADDR: localhost
+      LISTEN_PORT: 8080
+    ports:
+      - '8080:8080'
