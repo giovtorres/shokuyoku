@@ -39,10 +39,6 @@ public class Filter {
             System.out.println("KAFKA_TOPIC environment variable should contain the topic to subscribe to. e.g. events");
             missingEnv = true;
         }
-        if(System.getenv("KAFKA_ERROR_TOPIC") == null) {
-            System.out.println("KAFKA_ERROR_TOPIC environment variable should contain the topic to send errors to to. e.g. events");
-            missingEnv = true;
-        }
         if(System.getenv("KAFKA_OUTPUT_TOPIC") == null) {
             System.out.println("KAFKA_OUTPUT_TOPIC environment variable should contain the topic to publish to. e.g. events");
             missingEnv = true;
@@ -69,6 +65,7 @@ public class Filter {
         boolean checkSimilar = "true".equals(System.getenv("CHECK_SIMILAR"));
         boolean ignoreNulls = "true".equals(System.getenv("IGNORE_NULLS"));
         boolean allowInvalidCoercions = "true".equals(System.getenv("ALLOW_INVALID_COERCIONS"));
+        String kafkaErrorTopic = System.getenv("KAFKA_ERROR_TOPIC");
 
         statsd = Statsd.getInstance();
 
@@ -145,7 +142,9 @@ public class Filter {
                 JSONSchemaDictionary.EventTypeJSONSchema eventTypeJSONSchema = orcJSONSchemaDictionary.getEventJSONSchema(eventName);
 
                 if (eventTypeJSONSchema == null) {
-                    producer.send(new ProducerRecord<>(System.getenv("KAFKA_ERROR_TOPIC"), record.value()));
+                    if (kafkaErrorTopic != null) {
+                        producer.send(new ProducerRecord<>(kafkaErrorTopic, record.value()));
+                    }
                     statsd.increment("filter.skipped", 1, new String[]{"env:"+System.getenv("STATSD_ENV"),"topic:"+eventName});
                     continue;
                 }
@@ -155,7 +154,9 @@ public class Filter {
 
                 if (filter.getFilterCount() > 0) {
                     statsd.histogram("filter.error", filter.getFilterCount(), new String[]{"env:"+System.getenv("STATSD_ENV"),"topic:"+eventName});
-                    producer.send(new ProducerRecord<>(System.getenv("KAFKA_ERROR_TOPIC"), record.value()));
+                    if (kafkaErrorTopic != null) {
+                        producer.send(new ProducerRecord<>(kafkaErrorTopic, record.value()));
+                    }
                 }
 
                 if (checkSimilar) {
